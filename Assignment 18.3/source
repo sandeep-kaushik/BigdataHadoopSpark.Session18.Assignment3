@@ -1,0 +1,63 @@
+LOAD FILE )--
+
+val travelSet = sc.textFile("/home/acadgild/Desktop/18.2/S18_Dataset_Holidays.txt")
+var travelTuples  =  travelSet.map(x=> {
+                          val row = x.split(",").toList
+                          (row.apply(0).toInt, row.apply(1), row.apply(2), row.apply(3), row.apply(4).toInt, row.apply(5).toInt)
+                         })
+
+val transport = sc.textFile("/home/acadgild/Desktop/18.2/S18_Dataset_Transport.txt")
+var transportTuples = transport.map(x=> {
+                          val row = x.split(",").toList
+                          (row.apply(0), row.apply(1).toInt)
+                         })
+
+val userDetails = sc.textFile("/home/acadgild/Desktop/18.2/S18_Dataset_User_details.txt")
+var userTuples = userDetails.map(x=> {
+                          val row = x.split(",").toList
+                          (row.apply(0).toInt, row.apply(1), row.apply(2).toInt)
+                         })
+
+
+-------------------------------------------------------------------------
+
+task-1)
+--Considering age groups of < 20 , 20-35, 35 > ,Which age group spends the most amount of money travelling.
+
+
+val travelingData = travelTuples.map(x => (x._1 ,x._4)).join(userTuples.map(x => (x._1,x._3)))
+
+val ageGroup = userTuples.map(x=> x._1->{
+if (x._3<20) "<20"
+else if (x._3 > 35) ">35"
+else "20-35"
+}).join(travelingData)
+
+val amountPrAgGroup = ageGroup.map(x => (x._2._1,x._2._2._2)).groupByKey().map(x => (x._1, x._2.sum)).sortBy(x => -x._2)
+
+-------------------------------------------------------------------------
+
+task-2)
+--What is the amount spent by each age-group, every year in travelling?
+
+
+val travelingData = travelTuples.map(x => (x._1 ,x._6)).join(userTuples.map(x => (x._1,x._3)))
+
+val ageGroup = userTuples.map(x=> x._1->{
+if (x._3<20) "<20"
+else if (x._3 > 35) ">35"
+else "20-35"
+}).join(travelingData)
+
+val amountPrAgGroupPrYr = ageGroup.map(x => ((x._2._1 ,x._2._2._1),x._2._2._2)).groupByKey().map(x => (x._1, x._2.sum)).sortBy(x => x._1._1)
+
+
+
+
+
+
+
+
+
+
+
